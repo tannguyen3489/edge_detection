@@ -292,6 +292,9 @@ class ScanPresenter constructor(
                 mat.put(0, 0, p0)
                 val pic = Imgcodecs.imdecode(mat, Imgcodecs.IMREAD_GRAYSCALE)
 
+
+
+
                 Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
                 mat.release()
                 detectEdge(pic)
