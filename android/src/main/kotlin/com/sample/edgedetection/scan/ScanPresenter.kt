@@ -279,17 +279,19 @@ class ScanPresenter constructor(
             .subscribeOn(proxySchedule)
             .subscribe {
                 val pictureSize = p1?.parameters?.pictureSize
-                Log.i(TAG, "picture size 3: " + pictureSize.toString())
+                Log.i(TAG, "picture size 4: " + pictureSize.toString())
                 Log.i(TAG, "picture size width: " + pictureSize?.width)
                 Log.i(TAG, "picture size heigth: " + pictureSize?.height)
-                val mat = Mat(
-                    Size(
-                        pictureSize?.width?.toDouble() ?: 1920.toDouble(),
-                        pictureSize?.height?.toDouble() ?: 1080.toDouble()
-                    ), CvType.CV_8UC1
-                )
+//                val mat = Mat(
+//                    Size(
+//                        pictureSize?.width?.toDouble() ?: 1920.toDouble(),
+//                        pictureSize?.height?.toDouble() ?: 1080.toDouble()
+//                    ), CvType.CV_8UC1
+//                )
+                val mat = Mat(pictureSize?.height ?: 1920, pictureSize?.width ?: 1080, CvType.CV_8UC1)
                 mat.put(0, 0, p0)
                 val pic = Imgcodecs.imdecode(mat, Imgcodecs.IMREAD_GRAYSCALE)
+
                 Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
                 mat.release()
                 detectEdge(pic)
