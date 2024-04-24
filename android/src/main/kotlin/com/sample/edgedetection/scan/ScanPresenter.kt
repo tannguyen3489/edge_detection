@@ -286,10 +286,10 @@ class ScanPresenter constructor(
                     Size(
                         pictureSize?.width?.toDouble() ?: 1920.toDouble(),
                         pictureSize?.height?.toDouble() ?: 1080.toDouble()
-                    ), CvType.CV_8U
+                    ), CvType.CV_8UC1
                 )
                 mat.put(0, 0, p0)
-                val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_IMWRITE_JPEG_QUALITY)
+                val pic = Imgcodecs.imdecode(mat, Imgcodecs.IMREAD_COLOR)
                 Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
                 mat.release()
                 detectEdge(pic)
