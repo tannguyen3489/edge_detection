@@ -280,8 +280,8 @@ class ScanPresenter constructor(
             .subscribe {
                 val pictureSize = p1?.parameters?.pictureSize
                 Log.i(TAG, "picture size: " + pictureSize.toString())
-                Log.i(TAG, "picture size width: " + pictureSize?.width)
-                Log.i(TAG, "picture size heigth: " + pictureSize?.height)
+//                Log.i(TAG, "picture size width: " + pictureSize?.width)
+//                Log.i(TAG, "picture size heigth: " + pictureSize?.height)
                 val mat = Mat(
                     Size(
                         pictureSize?.width?.toDouble() ?: 1920.toDouble(),
@@ -289,7 +289,7 @@ class ScanPresenter constructor(
                     ), CvType.CV_8U
                 )
                 mat.put(0, 0, p0)
-                val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
+                val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_COLOR)
                 Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
                 mat.release()
                 detectEdge(pic)
