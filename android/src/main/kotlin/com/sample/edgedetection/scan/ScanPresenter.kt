@@ -286,7 +286,7 @@ class ScanPresenter constructor(
                     Size(
                         pictureSize?.width?.toDouble() ?: 1920.toDouble(),
                         pictureSize?.height?.toDouble() ?: 1080.toDouble()
-                    ), CvType.CV_8UC1
+                    ), CvType.CV_8U
                 )
                 mat.put(0, 0, p0)
                 val pic = Imgcodecs.imdecode(mat, Imgcodecs.IMREAD_GRAYSCALE)
