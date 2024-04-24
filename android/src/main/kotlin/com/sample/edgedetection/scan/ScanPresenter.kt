@@ -282,8 +282,8 @@ class ScanPresenter constructor(
                 Log.i(TAG, "picture size: " + pictureSize.toString())
                 val mat = Mat(
                     Size(
-                        pictureSize?.width?.toDouble() ?: 192.toDouble(),
-                        pictureSize?.height?.toDouble() ?: 108.toDouble()
+                        pictureSize?.width?.toDouble() ?: 1920.toDouble(),
+                        pictureSize?.height?.toDouble() ?: 1080.toDouble()
                     ), CvType.CV_8U
                 )
                 mat.put(0, 0, p0)
