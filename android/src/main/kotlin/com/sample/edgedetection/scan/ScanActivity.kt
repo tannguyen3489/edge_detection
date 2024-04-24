@@ -131,13 +131,10 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 val uri: Uri = data!!.data!!
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     onImageSelected(uri)
                 }
-            }else if(resultCode == Activity.RESULT_CANCELED){
-                mPresenter.start()
-            }
-            else {
+            } else {
                 if (intent.hasExtra(EdgeDetectionHandler.FROM_GALLERY) && intent.getBooleanExtra(EdgeDetectionHandler.FROM_GALLERY,false))
                     finish()
             }
@@ -152,7 +149,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         else -> super.onOptionsItemSelected(item)
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun onImageSelected(imageUri: Uri) {
         try {
             val iStream: InputStream = contentResolver.openInputStream(imageUri)!!
