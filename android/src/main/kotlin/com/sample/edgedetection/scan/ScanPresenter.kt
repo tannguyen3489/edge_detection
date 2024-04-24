@@ -280,6 +280,8 @@ class ScanPresenter constructor(
             .subscribe {
                 val pictureSize = p1?.parameters?.pictureSize
                 Log.i(TAG, "picture size: " + pictureSize.toString())
+                Log.i(TAG, "picture size width: " + pictureSize?.width)
+                Log.i(TAG, "picture size heigth: " + pictureSize?.height)
                 val mat = Mat(
                     Size(
                         pictureSize?.width?.toDouble() ?: 1920.toDouble(),
