@@ -49,4 +49,34 @@ class EdgeDetection {
     });
     return Uint8List.fromList(result);
   }
+
+  /// Process an image from file path or Uint8List bytes.
+  /// Automatically detects document edges and crops the image.
+  ///
+  /// Parameters:
+  /// - [imagePath]: Path to the image file (optional if [imageBytes] provided)
+  /// - [imageBytes]: Image bytes as Uint8List (optional if [imagePath] provided)
+  ///
+  /// Returns auto-cropped image bytes as Uint8List.
+  /// Throws PlatformException if both or neither inputs are provided.
+  static Future<Uint8List> processImage({
+    String? imagePath,
+    Uint8List? imageBytes,
+  }) async {
+    if ((imagePath == null && imageBytes == null) ||
+        (imagePath != null && imageBytes != null)) {
+      throw ArgumentError('Provide either imagePath or imageBytes, not both');
+    }
+
+    final Map<String, dynamic> args = {};
+
+    if (imagePath != null) {
+      args['image_path'] = imagePath;
+    } else if (imageBytes != null) {
+      args['image_bytes'] = imageBytes;
+    }
+
+    final List<int> result = await _channel.invokeMethod('process_image', args);
+    return Uint8List.fromList(result);
+  }
 }

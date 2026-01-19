@@ -39,6 +39,9 @@ public class SwiftEdgeDetectionPlugin: NSObject, FlutterPlugin, UIApplicationDel
         else if (call.method == "auto_crop") {
             handleAutoCrop(call, result: result)
         }
+        else if (call.method == "process_image") {
+            handleProcessImage(call, result: result)
+        }
         else {
             result(FlutterMethodNotImplemented)
         }
@@ -58,6 +61,61 @@ public class SwiftEdgeDetectionPlugin: NSObject, FlutterPlugin, UIApplicationDel
         // Process auto-crop in background thread to avoid blocking UI
         DispatchQueue.global(qos: .userInitiated).async {
             let data = imageBytes.data
+            let croppedBytes = AutoCropProcessor.autoCropImageBytes(data)
+
+            DispatchQueue.main.async {
+                if let croppedBytes = croppedBytes {
+                    result(FlutterStandardTypedData(bytes: croppedBytes))
+                } else {
+                    result(FlutterError(
+                        code: "crop_failed",
+                        message: "Failed to detect or crop image edges",
+                        details: nil
+                    ))
+                }
+            }
+        }
+    }
+
+    private func handleProcessImage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? Dictionary<String, Any> else {
+            result(FlutterError(code: "invalid_argument", message: "Arguments must be a dictionary", details: nil))
+            return
+        }
+
+        let imagePath = args["image_path"] as? String
+        let imageBytes = args["image_bytes"] as? FlutterStandardTypedData
+
+        if imagePath == nil && imageBytes == nil {
+            result(FlutterError(code: "invalid_argument", message: "Either image_path or image_bytes is required", details: nil))
+            return
+        }
+
+        // Process in background thread to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async {
+            var dataToProcess: Data?
+
+            if let imagePath = imagePath {
+                // Read image from file path
+                do {
+                    dataToProcess = try Data(contentsOf: URL(fileURLWithPath: imagePath))
+                } catch {
+                    DispatchQueue.main.async {
+                        result(FlutterError(code: "invalid_argument", message: "Failed to read file: \(error.localizedDescription)", details: nil))
+                    }
+                    return
+                }
+            } else if let imageBytes = imageBytes {
+                dataToProcess = imageBytes.data
+            }
+
+            guard let data = dataToProcess else {
+                DispatchQueue.main.async {
+                    result(FlutterError(code: "invalid_argument", message: "Failed to load image data", details: nil))
+                }
+                return
+            }
+
             let croppedBytes = AutoCropProcessor.autoCropImageBytes(data)
 
             DispatchQueue.main.async {

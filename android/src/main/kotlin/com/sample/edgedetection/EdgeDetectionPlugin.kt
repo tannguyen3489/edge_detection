@@ -85,6 +85,44 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
         }
     }
 
+    private fun handleProcessImage(call: MethodCall, result: Result) {
+        try {
+            val imagePath = call.argument<String?>("image_path")
+            val imageBytes = call.argument<ByteArray?>("image_bytes")
+
+            if (imagePath == null && imageBytes == null) {
+                throw IllegalArgumentException("Either image_path or image_bytes is required")
+            }
+
+            // Process in background thread to avoid blocking UI
+            Thread {
+                val bytesToProcess = if (imagePath != null) {
+                    // Read image from file
+                    java.io.File(imagePath).readBytes()
+                } else {
+                    imageBytes!!
+                }
+
+                val croppedBytes = autoCropImageBytes(bytesToProcess)
+                if (croppedBytes != null) {
+                    result.success(croppedBytes)
+                } else {
+                    result.error(
+                        "crop_failed",
+                        "Failed to detect or crop image edges",
+                        null
+                    )
+                }
+            }.start()
+        } catch (e: Exception) {
+            result.error(
+                "invalid_argument",
+                e.message ?: "Invalid arguments for process_image",
+                null
+            )
+        }
+    }
+
     override fun onMethodCall(call: MethodCall, result: Result) {
         when {
             getActivity() == null -> {
@@ -103,6 +141,9 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
             }
             call.method.equals("auto_crop") -> {
                 handleAutoCrop(call, result)
+            }
+            call.method.equals("process_image") -> {
+                handleProcessImage(call, result)
             }
             else -> {
                 result.notImplemented()
