@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
@@ -38,5 +39,14 @@ class EdgeDetection {
       'crop_reset_title': androidCropReset,
       'from_gallery': true,
     });
+  }
+
+  /// Call this method to automatically crop an image provided as Uint8List.
+  /// Takes image bytes as input and returns auto-cropped image bytes.
+  static Future<Uint8List> autoCrop(Uint8List imageBytes) async {
+    final List<int> result = await _channel.invokeMethod('auto_crop', {
+      'image_bytes': imageBytes,
+    });
+    return Uint8List.fromList(result);
   }
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.sample.edgedetection.scan.ScanActivity
+import com.sample.edgedetection.processor.autoCropImageBytes
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -57,6 +58,33 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
         this.activityPluginBinding = activityPluginBinding
     }
 
+    private fun handleAutoCrop(call: MethodCall, result: Result) {
+        try {
+            val imageBytes = call.argument<ByteArray>("image_bytes")
+                ?: throw IllegalArgumentException("image_bytes is required")
+
+            // Process auto-crop in background thread to avoid blocking UI
+            Thread {
+                val croppedBytes = autoCropImageBytes(imageBytes)
+                if (croppedBytes != null) {
+                    result.success(croppedBytes)
+                } else {
+                    result.error(
+                        "crop_failed",
+                        "Failed to detect or crop image edges",
+                        null
+                    )
+                }
+            }.start()
+        } catch (e: Exception) {
+            result.error(
+                "invalid_argument",
+                e.message ?: "Invalid arguments for auto_crop",
+                null
+            )
+        }
+    }
+
     override fun onMethodCall(call: MethodCall, result: Result) {
         when {
             getActivity() == null -> {
@@ -72,6 +100,9 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
             }
             call.method.equals("edge_detect_gallery") -> {
                 openGalleryActivity(call, result)
+            }
+            call.method.equals("auto_crop") -> {
+                handleAutoCrop(call, result)
             }
             else -> {
                 result.notImplemented()
